@@ -1,0 +1,4 @@
+config.ini
+*.db
+emb.py
+.idea
