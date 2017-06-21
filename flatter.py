@@ -4,6 +4,7 @@ import sqlite3
 import configparser
 import os
 import requests
+from datetime import datetime
 
 
 cur_dir = os.path.dirname(os.path.abspath(__file__))
@@ -87,10 +88,14 @@ def parse_subscriptions():
 
     con.commit()
 
+def check():
+    if len(new_flat()) > 0:
+        parse_subscriptions()
+        send_notify()
 
-# print(old_list())
-# print(new_list())
-# print(new_flat())
-parse_subscriptions()
-send_notify()
+    cursor.execute("INSERT INTO log(dates, created_at) VALUES(?,?)",
+                (json.dumps(new_flat()), datetime.now().strftime("%Y-%m-%d %H:%M:%S"),))
+    con.commit()
+
+check()
 rewrite_flatters()
