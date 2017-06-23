@@ -47,7 +47,8 @@ def new_flat():
         '1_room': 1,
         '2_rooms': 2,
         '3_rooms': 3,
-        '4_rooms': 4
+        '4_rooms': 4,
+        '5_rooms': 5
     }
     result = []
     new = task()

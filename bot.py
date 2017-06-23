@@ -4,6 +4,7 @@ from telepot.loop import MessageLoop
 import sqlite3
 import configparser
 import os
+import json
 
 
 cur_dir = os.path.dirname(os.path.abspath(__file__))
@@ -12,6 +13,7 @@ config = configparser.ConfigParser()
 config.read(cur_dir+'/config.ini')
 con = sqlite3.connect(cur_dir+'/'+config['sqlite']['db_name'], check_same_thread=False)
 cursor = con.cursor()
+bot = telepot.Bot(config['bot']['token'])
 
 message_with_inline_keyboard = None
 
@@ -23,14 +25,22 @@ def on_chat_message(msg):
     value = msg['text'].strip().lower().split(" ")[-1]
 
     if command == '/start' or command == '/stop':
-        print(command)
-        command_to_notify = {
-            '/start': 1,
-            '/stop': 0,
-        }
-        cursor.execute("UPDATE user SET notify = ? WHERE id = ?",
-                       (command_to_notify[command], chat_id,))
-        con.commit()
+        updates = bot.getUpdates()
+        for update in updates:
+            message = update['message']
+            user = message['from']
+            cursor.execute("INSERT OR IGNORE INTO user(id, profile, notify, rooms, minprice, maxprice) VALUES(?,?,?,?,?,?)",
+                           (user['id'], json.dumps(user), 0, 0, 50, 8500))
+
+            text = message['text']
+            command_to_notify = {
+                '/start': 1,
+                '/stop': 0,
+            }
+            if text in command_to_notify:
+                cursor.execute("UPDATE user SET notify = ? WHERE id = ?",
+                               (command_to_notify[text], user['id'],))
+    con.commit()
 
     if command == '/help':
         bot.sendMessage(chat_id, 'Команды: \n/minprice \n/maxprice \n/setrooms')
