@@ -19,7 +19,7 @@ bot = telepot.Bot(config['bot']['token'])
 
 def task():
     array = []
-    url = 'https://ak.api.onliner.by/search/apartments?order=created_at%3Adesc'
+    url = 'https://ak.api.onliner.by/search/apartments?order=created_at%3Adesc&metro[]=red_line&metro[]=blue_line'
     response = requests.get(url)
     resp = response.json()
     apartments = resp['apartments']
@@ -48,7 +48,8 @@ def new_flat():
         '2_rooms': 2,
         '3_rooms': 3,
         '4_rooms': 4,
-        '5_rooms': 5
+        '5_rooms': 5,
+        '6_rooms': 6
     }
     result = []
     new = task()
@@ -69,13 +70,22 @@ def send_notify():
         user_id = row[0]
         minPrice = row[1]
         maxPrice = row[2]
-        rooms = int(row[3])
+
+        rooms = row[3]
+        arrayRooms = []
+        for r in rooms:
+            if r.isdigit():
+                arrayRooms.append(r)
+
         for list in newFlat:
-            if float(list[0]) >= minPrice and float(list[0]) <= maxPrice and list[2] == rooms:
-                if list[1] == True:
-                    list[1] = 'Собственник'
-                else: list[1] = 'Агент'
-                message = 'Адрес: %s' %list[3] + '\nЦена: $%s' %list[0] + '\nРазместил: %s' %list[1]+ '\nКол-во комнат: %s' %list[2] + '\n%s' %list[4]
-                bot.sendMessage(user_id, message)
+            if float(list[0]) >= minPrice and float(list[0]) <= maxPrice:
+                print('step1')
+                for ar in arrayRooms:
+                    if int(ar) == int(list[2]):
+                        if list[1] == True:
+                            list[1] = 'Собственник'
+                        else: list[1] = 'Агент'
+                        message = 'Адрес: %s' %list[3] + '\nЦена: $%s' %list[0] + '\nРазместил: %s' %list[1]+ '\nКол-во комнат: %s' %list[2] + '\n%s' %list[4]
+                        bot.sendMessage(user_id, message)
 
 send_notify()

@@ -65,10 +65,21 @@ def on_chat_message(msg):
             cursor.execute("UPDATE user SET rooms = ? WHERE id = ?",
                            (value, chat_id))
             con.commit()
-            bot.sendMessage(chat_id, 'Ищем %s-х комнатные квартиры' % value)
+            bot.sendMessage(chat_id, 'Параметры поиска квартиры: %s' % value)
         else:
-            bot.sendMessage(chat_id, 'Пример: /setrooms 2')
-
+            bot.sendMessage(chat_id, 'Пример: /setrooms 1,2')
+    # if command == '/metro':
+    #     if (value != '/metro') and (value == '0' or '1'):
+    #         cursor.execute("UPDATE user SET metro = ? WHERE id = ?",
+    #                        (value, chat_id))
+    #         con.commit()
+    #         if value == '1':
+    #             value = 'да'
+    #         else:
+    #             value = 'нет'
+    #         bot.sendMessage(chat_id, 'Около метро? %s' % value)
+    #     else:
+    #         bot.sendMessage(chat_id, 'Пример: /metro - около метро, /metro 0 - без разницы')
 bot = telepot.Bot(config['bot']['token'])
 
 MessageLoop(bot, {'chat': on_chat_message}).run_as_thread()
